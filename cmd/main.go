@@ -59,7 +59,7 @@ func circulation(client mqtt.Client, value bool) {
 
 	// check if INTERVAL passed
 	if time.Now().After(nextPossibleRun) {
-		nextPossibleRun = time.Now().Add(settings.Interval)
+		nextPossibleRun = time.Now().Add(settings.Interval).Add(settings.Duration)
 		client.Publish(publishTopic, 0, false, "1")
 		time.Sleep(settings.Duration)
 		client.Publish(publishTopic, 0, false, "0")
