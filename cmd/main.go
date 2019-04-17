@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	mqttclient "github.com/automatedhome/flow-meter/pkg/mqttclient"
@@ -21,6 +22,27 @@ var nextPossibleRun time.Time
 var settings Settings
 
 func onMessage(client mqtt.Client, message mqtt.Message) {
+	// parse settings
+	if strings.HasSuffix(message.Topic(), "/interval") {
+		v, err := strconv.ParseInt(string(message.Payload()), 0, 64)
+		if err != nil {
+			log.Printf("Received incorrect interval payload: '%v'\n", message.Payload())
+			return
+		}
+		settings.Interval = time.Duration(v)
+		return
+	}
+	if strings.HasSuffix(message.Topic(), "/duration") {
+		v, err := strconv.ParseInt(string(message.Payload()), 0, 64)
+		if err != nil {
+			log.Printf("Received incorrect duration payload: '%v'\n", message.Payload())
+			return
+		}
+		settings.Duration = time.Duration(v)
+		return
+	}
+
+	// parse values
 	value, err := strconv.ParseBool(string(message.Payload()))
 	if err != nil {
 		log.Printf("Received incorrect message payload: '%v'\n", message.Payload())
@@ -49,18 +71,18 @@ func main() {
 	clientID := flag.String("clientid", "circulation", "A clientid for the connection")
 	inTopic := flag.String("inTopic", "evok/input/3/value", "MQTT topic with a current pin state")
 	outTopic := flag.String("outTopic", "evok/relay/4/set", "MQTT topic with a relay responsible for circulation pump")
-	//settingsTopic := flag.String("settingsTopic", "settings/circulation", "MQTT topic with circulation settings")
+	settingsTopic := flag.String("settingsTopic", "settings/circulation/+", "MQTT topic(s) with circulation settings")
 	flag.Parse()
 
-	publishTopic = *outTopic
-
-	// Read it from MQTT settings topic
+	// set default values
 	settings.Interval = 60 * time.Minute
 	settings.Duration = 12 * time.Second
 
+	publishTopic = *outTopic
+
 	nextPossibleRun = time.Now()
 	brokerURL, _ := url.Parse(*broker)
-	mqttclient.New(*clientID, brokerURL, *inTopic, onMessage)
+	mqttclient.New(*clientID, brokerURL, []string{*inTopic, *settingsTopic}, onMessage)
 
 	log.Printf("Connected to %s as %s and waiting for messages\n", *broker, *clientID)
 

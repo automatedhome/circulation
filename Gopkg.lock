@@ -3,11 +3,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:300f0d277b79283a1942f83c80c02dbf43647a7b1c682c74957e4d999e862f89"
+  digest = "1:c0d9dd2d84053155a76cb31ad37298f51d9b6c2a252a04388bc075a53d222a1c"
   name = "github.com/automatedhome/flow-meter"
   packages = ["pkg/mqttclient"]
   pruneopts = "UT"
-  revision = "69a471a3503eed66161fce2929536fa49b1b3f9a"
+  revision = "bac5adf62f512242239bd0e1459b1fe6e64e6b9e"
 
 [[projects]]
   digest = "1:184008c955d6a3226b700c13ed0e875a7a051a759618f9bccba9b5c99f17faa5"

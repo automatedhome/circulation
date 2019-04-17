@@ -36,7 +36,13 @@ func Connect(clientID string, uri *url.URL) mqtt.Client {
 }
 
 // New will create new mqtt client and start handling messages from specified topic
-func New(id string, uri *url.URL, topic string, callback mqtt.MessageHandler) {
+func New(id string, uri *url.URL, topics []string, callback mqtt.MessageHandler) {
 	client := Connect(id, uri)
-	client.Subscribe(topic, 0, callback)
+
+	topicsMap := make(map[string]byte)
+
+	for _, s := range topics {
+		topicsMap[s] = 0
+	}
+	client.SubscribeMultiple(topicsMap, callback)
 }
