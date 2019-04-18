@@ -23,9 +23,8 @@ func createOptions(clientID string, uri *url.URL) *mqtt.ClientOptions {
 }
 
 // Connect will create new mqtt client
-func Connect(clientID string, uri *url.URL) mqtt.Client {
-	opts := createOptions(clientID, uri)
-	client := mqtt.NewClient(opts)
+func connect(uri *url.URL, options *mqtt.ClientOptions) mqtt.Client {
+	client := mqtt.NewClient(options)
 	token := client.Connect()
 	for !token.WaitTimeout(3 * time.Second) {
 	}
@@ -36,13 +35,20 @@ func Connect(clientID string, uri *url.URL) mqtt.Client {
 }
 
 // New will create new mqtt client and start handling messages from specified topic
-func New(id string, uri *url.URL, topics []string, callback mqtt.MessageHandler) {
-	client := Connect(id, uri)
+func New(id string, uri *url.URL, topics []string, callback mqtt.MessageHandler) mqtt.Client {
+	opts := createOptions(id, uri)
 
 	topicsMap := make(map[string]byte)
-
 	for _, s := range topics {
 		topicsMap[s] = 0
 	}
-	client.SubscribeMultiple(topicsMap, callback)
+	opts.OnConnect = func(c mqtt.Client) {
+		if token := c.SubscribeMultiple(topicsMap, callback); token.Wait() && token.Error() != nil {
+			panic(token.Error())
+		}
+	}
+
+	client := connect(uri, opts)
+
+	return client
 }
