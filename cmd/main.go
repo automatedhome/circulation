@@ -71,7 +71,7 @@ func main() {
 	clientID := flag.String("clientid", "circulation", "A clientid for the connection")
 	inTopic := flag.String("inTopic", "evok/input/3/value", "MQTT topic with a current pin state")
 	outTopic := flag.String("outTopic", "evok/relay/4/set", "MQTT topic with a relay responsible for circulation pump")
-	settingsTopic := flag.String("settingsTopic", "settings/circulation/+", "MQTT topic(s) with circulation settings")
+	settingsTopic := flag.String("settingsTopic", "circulation/settings/+", "MQTT topic(s) with circulation settings")
 	flag.Parse()
 
 	// set default values
