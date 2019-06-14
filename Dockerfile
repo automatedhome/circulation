@@ -3,7 +3,7 @@ FROM arm32v7/golang:stretch
 COPY qemu-arm-static /usr/bin/
 WORKDIR /go/src/github.com/automatedhome/circulation
 COPY . .
-RUN go build -o circulation cmd/main.go
+RUN GO111MODULE=on go build -o circulation cmd/main.go
 
 FROM arm32v7/busybox:1.30-glibc
 
