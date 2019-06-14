@@ -1,11 +1,12 @@
 GO111MODULE=on
 export GO111MODULE
 
-IMAGE=automatedhome/circulation
+APP=circulation
+IMAGE=automatedhome/$(APP)
 
 .PHONY: build
 build:
-	go build -o circulation cmd/main.go
+	go build -o $(APP) cmd/main.go
 
 qemu-arm-static:
 	./hooks/post_checkout
