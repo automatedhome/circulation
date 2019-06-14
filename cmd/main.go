@@ -70,8 +70,8 @@ func circulation(client mqtt.Client, value bool) {
 func main() {
 	broker := flag.String("broker", "tcp://127.0.0.1:1883", "The full url of the MQTT server to connect to ex: tcp://127.0.0.1:1883")
 	clientID := flag.String("clientid", "circulation", "A clientid for the connection")
-	inTopic := flag.String("inTopic", "evok/input/3/value", "MQTT topic with a current pin state")
-	outTopic := flag.String("outTopic", "evok/relay/4/set", "MQTT topic with a relay responsible for circulation pump")
+	inTopic := flag.String("inTopic", "circulation/detect", "MQTT topic with a current pin state")
+	outTopic := flag.String("outTopic", "circulation/pump", "MQTT topic with a relay responsible for circulation pump")
 	settingsTopic := flag.String("settingsTopic", "circulation/settings/+", "MQTT topic(s) with circulation settings")
 	flag.Parse()
 
