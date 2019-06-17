@@ -29,7 +29,7 @@ func onMessage(client mqtt.Client, message mqtt.Message) {
 			log.Printf("Received incorrect interval payload: '%v'\n", message.Payload())
 			return
 		}
-		settings.Interval = time.Duration(v)
+		settings.Interval = time.Duration(v) * time.Minute
 		return
 	}
 	if strings.HasSuffix(message.Topic(), "/duration") {
@@ -38,7 +38,7 @@ func onMessage(client mqtt.Client, message mqtt.Message) {
 			log.Printf("Received incorrect duration payload: '%v'\n", message.Payload())
 			return
 		}
-		settings.Duration = time.Duration(v)
+		settings.Duration = time.Duration(v) * time.Second
 		return
 	}
 
