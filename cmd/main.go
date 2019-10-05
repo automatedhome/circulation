@@ -61,9 +61,13 @@ func circulation(client mqtt.Client, value bool) {
 	if time.Now().After(nextPossibleRun) {
 		log.Printf("Running circulation loop with following settings: %+v", settings)
 		nextPossibleRun = time.Now().Add(settings.Interval).Add(settings.Duration)
-		client.Publish(publishTopic, 0, false, "1")
+		if err := mqttclient.Publish(client, publishTopic, 0, false, "1"); err != nil {
+			return
+		}
 		time.Sleep(settings.Duration)
-		client.Publish(publishTopic, 0, false, "0")
+		if err := mqttclient.Publish(client, publishTopic, 0, false, "0"); err != nil {
+			return
+		}
 	}
 }
 
