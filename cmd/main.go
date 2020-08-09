@@ -3,10 +3,15 @@ package main
 import (
 	"flag"
 	"log"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	mqttclient "github.com/automatedhome/common/pkg/mqttclient"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -20,6 +25,17 @@ type Settings struct {
 var publishTopic string
 var nextPossibleRun time.Time
 var settings Settings
+
+var (
+	circulationStart = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "circulation_last_start_timestamp",
+		Help: "Last start of circulation pump",
+	})
+	circulationStop = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "circulation_last_stop_timestamp",
+		Help: "Last stop of circulation pump",
+	})
+)
 
 func onMessage(client mqtt.Client, message mqtt.Message) {
 	// parse settings
@@ -61,10 +77,12 @@ func circulation(client mqtt.Client, value bool) {
 	if time.Now().After(nextPossibleRun) {
 		log.Printf("Running circulation loop with following settings: %+v", settings)
 		nextPossibleRun = time.Now().Add(settings.Interval).Add(settings.Duration)
+		circulationStart.SetToCurrentTime()
 		if err := mqttclient.Publish(client, publishTopic, 0, false, "1"); err != nil {
 			return
 		}
 		time.Sleep(settings.Duration)
+		circulationStop.SetToCurrentTime()
 		if err := mqttclient.Publish(client, publishTopic, 0, false, "0"); err != nil {
 			return
 		}
@@ -90,6 +108,10 @@ func main() {
 	mqttclient.New(*clientID, brokerURL, []string{*inTopic, *settingsTopic}, onMessage)
 
 	log.Printf("Connected to %s as %s and waiting for messages\n", *broker, *clientID)
+
+	// Expose metrics
+	http.Handle("/metrics", promhttp.Handler())
+	http.ListenAndServe(":7003", nil)
 
 	// wait forever
 	select {}
