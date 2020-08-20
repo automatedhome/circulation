@@ -3,8 +3,9 @@ module github.com/automatedhome/circulation
 go 1.12
 
 require (
-	github.com/automatedhome/common v0.0.0-20191004225413-cc577984c325
-	github.com/eclipse/paho.mqtt.golang v1.2.0
+	github.com/gobwas/httphead v0.0.0-20180130184737-2c6c146eadee // indirect
+	github.com/gobwas/pool v0.2.1 // indirect
+	github.com/gobwas/ws v1.0.3
 	github.com/prometheus/client_golang v1.7.1
-	golang.org/x/net v0.0.0-20191003171128-d98b1b443823 // indirect
+	github.com/prometheus/common v0.10.0
 )
