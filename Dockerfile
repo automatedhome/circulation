@@ -1,13 +1,12 @@
-FROM arm32v7/golang:stretch
-
-COPY qemu-arm-static /usr/bin/
+FROM golang:1.18 as builder
+ 
 WORKDIR /go/src/github.com/automatedhome/circulation
 COPY . .
-RUN make build
+RUN CGO_ENABLED=0 go build -o circulation cmd/main.go
 
-FROM arm32v7/busybox:1.30-glibc
+FROM busybox:glibc
 
-COPY --from=0 /go/src/github.com/automatedhome/circulation/circulation /usr/bin/circulation
+COPY --from=builder /go/src/github.com/automatedhome/circulation/circulation /usr/bin/circulation
 
 HEALTHCHECK --timeout=5s --start-period=1m \
   CMD wget --quiet --tries=1 --spider http://localhost:7003/health || exit 1

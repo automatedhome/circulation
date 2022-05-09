@@ -127,7 +127,10 @@ func setRelay(value bool) {
 	payload := strings.NewReader("{\"value\":\"" + state + "\"}")
 	req, _ := http.NewRequest("POST", url, payload)
 	req.Header.Add("content-type", "application/json")
-	http.DefaultClient.Do(req)
+	_, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Errorf("Couldn't set relay value: %#v\n", err)
+	}
 }
 
 func init() {
